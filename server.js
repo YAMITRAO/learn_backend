@@ -1,7 +1,9 @@
 const http = require('http');
-const routeHandler = require('./routes')
 
+const reListner = (req, res) => {
+    console.log(req.url);
+    res.write('<div>Hello India</div>')
+}
 
-const server = http.createServer( routeHandler.handler)
-
+let server = http.createServer(reListner);
 server.listen(3000);
