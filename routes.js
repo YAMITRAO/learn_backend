@@ -12,7 +12,7 @@ if(req.url == "/"){
 else if(req.url === "/message" && req.method === "POST"){
     const my_incoming_data = [];
     req.on('data', (packets)=> {
-        // console.log(packets);
+        console.log(packets);
         my_incoming_data.push(packets);
     })
     req.on('end', ()=> {
@@ -27,9 +27,10 @@ else if(req.url === "/message" && req.method === "POST"){
                 console.error(err);
                 return;
               }
-            //   console.log("Data of file is:-",data);
+              console.log("Data of file is:-",data);
             //   console.log("Data from input", finalData);
               let input_data = finalData.concat(`/n` ,data);
+              console.log("Final data is :-", input_data)
               fs.writeFileSync("message.txt", input_data);
         })
   
