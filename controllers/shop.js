@@ -41,7 +41,7 @@ exports.getCart = (req, res, next) => {
 };
 
 exports.postCart = (req, res, next) => {
-  let prodId = req.body;
+  let prodId = req.body.productId;
   console.log(prodId);
   res.redirect("/cart");
 };
