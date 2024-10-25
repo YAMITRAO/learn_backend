@@ -13,62 +13,74 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(null, title, imageUrl, description, price);
-  product.save().then((res)=> {
-    console.log("Response is :- ", res)
-    res.redirect("/")
-  }).catch((e)=> console.log(e));
-  res.redirect('/');
+  // req.user.createProduct
+ 
+  Product.create({
+    title:title,
+    imageUrl: imageUrl,
+    price:price,
+    description: description,
+    userId: req.user.id
+  }).then((res)=> {
+    console.log("Result ", res);
+    res.redirect('/admin/products')
+  })
+  .catch((e)=>{
+    console.log("Error is", e);
+    res.redirect('/admin/products')
+  } 
+)
+  // res.redirect('/admin/products');
 };
 
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
   const editMode = req.query.edit;
   if (!editMode) {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, product => {
-    if (!product) {
-      return res.redirect('/');
-    }
-    res.render('admin/edit-product', {
-      pageTitle: 'Edit Product',
-      path: '/admin/edit-product',
-      editing: editMode,
-      product: product
-    });
+  const result = await Product.findByPk(prodId);
+  console.log("At edit admin result is:-", result.dataValues);
+  res.render('admin/edit-product', {
+    pageTitle: 'Edit Product',
+    path: '/admin/edit-product',
+    editing: editMode,
+    product: result
   });
 };
 
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  const updatedProduct = new Product(
-    prodId,
-    updatedTitle,
-    updatedImageUrl,
-    updatedDesc,
-    updatedPrice
-  );
-  updatedProduct.save();
+   let result = await Product.findByPk(prodId)
+   result.title = updatedTitle;
+   result.price = updatedPrice;
+   result.imageUrl = updatedImageUrl;
+   result.description = updatedDesc;
+   await result.save();
   res.redirect('/admin/products');
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll(products => {
+
+  Product.findAll().then((product)=> {
+
     res.render('admin/products', {
-      prods: products,
+      prods: product,
       pageTitle: 'Admin Products',
       path: '/admin/products'
     });
-  });
+  }).catch((e)=> console.log(e))
+ 
 };
 
-exports.postDeleteProduct = (req, res, next) => {
+exports.postDeleteProduct = async (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteById(prodId);
+  const result = await Product.findByPk(prodId);
+  console.log("At edit admin result is:-", result.dataValues); 
+   await result.destroy()
   res.redirect('/admin/products');
 };
